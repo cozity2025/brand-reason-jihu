@@ -32,6 +32,15 @@ module.exports = {
     }
   ],
 
+  memberships: [
+    { id: 'lite', name: '라이트', billing: 'monthly', price: 19000, currency: 'KRW', reviewsPerMonth: 1, status: 'demo',
+      benefits: ['상세페이지 문구 첨삭 월 1회', '상품명·핵심 문구 3줄 개선', '첨삭 이유 코멘트'] },
+    { id: 'standard', name: '스탠다드', billing: 'monthly', price: 39000, currency: 'KRW', reviewsPerMonth: 3, status: 'demo',
+      benefits: ['상세페이지 문구 첨삭 월 3회', '브랜드 차별화 콘셉트 피드백', '상품 구성·세트 제안', '가이드 워크북 무료 제공'] },
+    { id: 'pro', name: '프로', billing: 'monthly', price: 79000, currency: 'KRW', reviewsPerMonth: 10, status: 'demo',
+      benefits: ['문구 첨삭 무제한 (월 10건 내)', '월 1회 30분 화상 코칭', '신상품 사입 기준 검토', '가이드 워크북 무료 제공'] }
+  ],
+
   curriculum: [
     { step: 1, title: '누구의 생활을 바꿀까?', output: '타깃 고객 정의' },
     { step: 2, title: '어떤 이유로 선택할까?', output: '차별화 콘셉트' },
@@ -40,6 +49,7 @@ module.exports = {
 
   pages: [
     { path: '/', title: '생활용품 사입 상품 차별화 방법 | 브랜드의 이유', sections: ['hero', 'curriculum', 'purchase'] },
+    { path: '/membership', title: '상세페이지 첨삭 멤버십 | 브랜드의 이유', sections: ['hero', 'flow', 'plans', 'faq'] },
     { path: '/admin/backups', title: '데이터 백업 | 브랜드의 이유 관리자', sections: ['backup'] }
   ],
 

@@ -6,7 +6,7 @@ const db = require('../_lib/db');
 const SENSITIVE_KEY =
   /(password|passwd|pwd|secret|token|api[_-]?key|private[_-]?key|credential|card|cvc|cvv|account[_-]?number|ssn)/i;
 
-const CSV_TABLES = ['products', 'curriculum', 'pages', 'admins'];
+const CSV_TABLES = ['products', 'memberships', 'curriculum', 'pages', 'admins'];
 
 function sanitize(value, path, excluded) {
   if (Array.isArray(value)) return value.map((v, i) => sanitize(v, `${path}[${i}]`, excluded));
