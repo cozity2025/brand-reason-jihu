@@ -1,0 +1,61 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.ico" sizes="32x32"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>데이터 백업 | 브랜드의 이유 관리자</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#f2f4f6;color:#191f28;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;word-break:keep-all}a{color:inherit;text-decoration:none}
+header{background:#fff;border-bottom:1px solid #e5e8eb}header .in{max-width:880px;margin:auto;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 20px}header strong{font-size:18px}header strong span{color:#3182f6}.crumb{font-size:14px;color:#8b95a1}
+main{max-width:880px;margin:auto;padding:36px 20px 60px}h1{font-size:28px;letter-spacing:-1px;margin:0 0 8px}.lead{color:#6b7684;margin:0 0 28px;line-height:1.7}
+.card{background:#fff;border-radius:20px;padding:28px;margin-bottom:16px}.card h2{font-size:19px;margin:0 0 6px}.card p{color:#6b7684;margin:0;line-height:1.7;font-size:15px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;align-items:center}
+button{border:0;border-radius:14px;background:#3182f6;color:#fff;font:inherit;font-size:17px;font-weight:700;padding:16px 34px;cursor:pointer}button:hover{background:#1b64da}button:disabled{background:#b0c8ee;cursor:default}
+.sub{background:#e8f3ff;color:#1b64da;font-size:15px;padding:12px 18px}.sub:hover{background:#d6e8ff}select{border:1px solid #d1d6db;border-radius:12px;padding:11px 12px;font:inherit;font-size:15px;background:#fff}
+button:focus-visible,select:focus-visible{outline:3px solid #8bbcff;outline-offset:3px}
+.status{margin-top:16px;font-size:14px;color:#4e5968;min-height:20px}.status.ok{color:#11804a}.status.err{color:#e42939}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}ul{margin:14px 0 0;padding:0;list-style:none;line-height:2.1;font-size:15px;color:#4e5968}li:before{content:'✓';color:#3182f6;margin-right:10px}.x li:before{content:'✕';color:#e42939}
+code{background:#f2f4f6;border-radius:6px;padding:2px 6px;font-size:13px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}h1{font-size:24px}button{width:100%}.actions .csv{display:flex;gap:8px;width:100%}.actions .csv select{flex:1}.actions .csv button{width:auto}}
+</style></head><body>
+<header><div class="in"><a href="/"><strong><span>●</span> 브랜드의 이유</strong></a><span class="crumb">관리자 › 백업</span></div></header>
+<main>
+<h1>데이터 백업</h1>
+<p class="lead">사이트의 주요 데이터를 파일로 내려받아 보관하세요.<br>비밀번호·API 키·결제 비밀값 같은 민감정보는 백업 파일에 들어가지 않아요.</p>
+
+<section class="card">
+<h2>전체 백업 (JSON)</h2>
+<p>사이트 설정, 상품, 커리큘럼, 페이지, 관리자 계정 정보를 한 파일로 내려받아요.</p>
+<div class="actions">
+<button id="backup">백업</button>
+<span class="csv"><select id="table" aria-label="CSV로 내보낼 표">
+<option value="products">상품</option><option value="curriculum">커리큘럼</option><option value="pages">페이지</option><option value="admins">관리자</option>
+</select> <button class="sub" id="csv">CSV로 내보내기</button></span>
+</div>
+<div class="status" id="status" role="status" aria-live="polite"></div>
+</section>
+
+<div class="grid">
+<section class="card"><h2>백업에 포함</h2><ul>
+<li>사이트 설정 (이름, 주소, SEO, 분석·모니터링 설정)</li><li>상품 (이름, 가격, 구성)</li><li>커리큘럼·페이지 구성</li><li>관리자 계정 (이름, 권한)</li></ul></section>
+<section class="card x"><h2>백업에서 제외</h2><ul>
+<li>비밀번호·비밀번호 해시</li><li>API 키·토큰</li><li>결제 비밀키</li><li>카드·계좌번호 등 금융정보</li></ul></section>
+</div>
+<p class="lead" style="font-size:13px;margin-top:8px">제외 기준: 필드 이름에 <code>password</code>, <code>secret</code>, <code>token</code>, <code>apiKey</code>, <code>card</code> 등이 들어가면 서버에서 값을 빼고 내보내요. 빠진 항목의 이름만 백업 파일의 <code>meta.excludedFields</code>에 기록돼요.</p>
+</main>
+<script>
+const statusEl=document.getElementById('status');
+async function download(url,btn){
+  btn.disabled=true;statusEl.className='status';statusEl.textContent='백업 파일을 만드는 중이에요…';
+  try{
+    const r=await fetch(url,{cache:'no-store'});
+    if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||('HTTP '+r.status));
+    const name=(r.headers.get('Content-Disposition')||'').match(/filename="([^"]+)"/)?.[1]||'backup';
+    const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download=name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    statusEl.className='status ok';statusEl.textContent=name+' 파일을 내려받았어요. ('+new Date().toLocaleString('ko-KR')+')';
+  }catch(e){statusEl.className='status err';statusEl.textContent='백업에 실패했어요: '+e.message;}
+  finally{btn.disabled=false;}
+}
+document.getElementById('backup').onclick=e=>download('/api/admin/backup?format=json',e.currentTarget);
+document.getElementById('csv').onclick=e=>download('/api/admin/backup?format=csv&table='+document.getElementById('table').value,e.currentTarget);
+</script>
+</body></html>
