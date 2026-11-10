@@ -50,3 +50,9 @@
 ---
 
 이 README는 Claude Code 클라우드 세션에서 작성되었습니다 (2026-11-09)
+
+## 데이터베이스 (Supabase)
+- 프로젝트: `brand-reason` (서울 리전) — https://supabase.com/dashboard/project/okbkxulmoychqpoyqbkc
+- 표: `products`, `memberships`, `curriculum`, `pages` (RLS 켜짐, 공개 읽기만 허용)
+- 연결 코드: `api/_lib/supabase.js` → `/api/admin/backup`이 Supabase에서 읽고, 실패하면 `api/_lib/db.js` 로컬 데이터로 대신해요. 응답의 `meta.source`로 확인(`supabase` / `local-fallback`).
+- 관리자·결제 연동 같은 민감 데이터는 DB에 올리지 않았어요.

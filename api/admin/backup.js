@@ -1,6 +1,7 @@
 // GET /api/admin/backup?format=json            → 전체 데이터 JSON 백업
 // GET /api/admin/backup?format=csv&table=products → 표 하나를 CSV로 백업
-const db = require('../_lib/db');
+const localDb = require('../_lib/db');
+const { loadFromSupabase } = require('../_lib/supabase');
 
 // 이름에 이 단어가 들어간 필드는 값과 상관없이 백업에서 뺍니다.
 const SENSITIVE_KEY =
@@ -36,7 +37,7 @@ function toCsv(rows) {
   return [cols.join(','), ...rows.map((r) => cols.map((c) => csvCell(r[c])).join(','))].join('\r\n');
 }
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -47,6 +48,10 @@ module.exports = (req, res) => {
   }
 
   const format = String(req.query.format || 'json').toLowerCase();
+  // 상품·멤버십·커리큘럼·페이지는 Supabase에서 읽고, 실패하면 로컬 데이터로 대신합니다.
+  const remote = await loadFromSupabase();
+  const db = remote ? { ...localDb, ...remote } : localDb;
+  const source = remote ? 'supabase' : 'local-fallback';
   const excluded = new Set();
   const data = sanitize(db, '', excluded);
   const now = new Date();
@@ -56,6 +61,7 @@ module.exports = (req, res) => {
     const backup = {
       meta: {
         site: db.site.name,
+        source,
         createdAt: now.toISOString(),
         format: 'json',
         tables: Object.keys(data),
