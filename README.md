@@ -56,3 +56,9 @@
 - 표: `products`, `memberships`, `curriculum`, `pages` (RLS 켜짐, 공개 읽기만 허용)
 - 연결 코드: `api/_lib/supabase.js` → `/api/admin/backup`이 Supabase에서 읽고, 실패하면 `api/_lib/db.js` 로컬 데이터로 대신해요. 응답의 `meta.source`로 확인(`supabase` / `local-fallback`).
 - 관리자·결제 연동 같은 민감 데이터는 DB에 올리지 않았어요.
+
+## RAG 챗봇 (v1.2.0)
+- 화면: 모든 페이지 오른쪽 아래 "무엇이든 물어보세요" 버튼 (`chat-widget.js`). 주소 끝에 `#chat`을 붙이면 바로 열려요 → https://brand-reason-jihu.vercel.app/#chat
+- API: `POST /api/chat` (`api/chat.js`) — 질문 → OpenAI `text-embedding-3-small` 임베딩 → RAG용 Supabase(`upgssnhavusickuvqlwu`)의 `match_knowledge` 벡터 검색 → 검색된 강의 원문·사이트 정보만 근거로 `gpt-4.1-mini`가 답변. 응답에 참고한 자료(`sources`)를 함께 돌려줘요.
+- 환경변수(Vercel Production): `OPENAI_API_KEY`, `RAG_SUPABASE_SECRET_KEY` — 서버에서만 쓰고 브라우저로 내보내지 않아요.
+- 공개 챗봇이라 원가·공급처가 있는 `products` 표는 검색하지 않고, 내부 자료(`operations`, "현재 핵심 과제")는 답변 근거에서 빼요. 질문 500자, IP당 10분 20회 제한.
