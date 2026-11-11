@@ -67,4 +67,4 @@ dialog{border:0;border-radius:24px;padding:34px;max-width:430px;width:calc(100% 
 <footer><strong>브랜드의 이유</strong><span>작은 브랜드의 선명한 시작 · 과제용 데모</span></footer>
 <dialog id="notice"><div class="tag">멤버십 신청 안내</div><h2 id="plan-name">멤버십</h2><p>이 페이지는 과제 제출용 데모예요.<br>신청 버튼 체험이 완료되었으며, 실제 결제나 구독은 진행되지 않아요.</p><button id="close">확인했어요</button></dialog>
 <script>const d=document.getElementById('notice');document.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>{document.getElementById('plan-name').textContent=b.dataset.plan+' 신청';if(window.gtag)gtag('event','membership_click',{plan:b.dataset.plan});d.showModal();});document.getElementById('close').onclick=()=>d.close();d.addEventListener('click',e=>{if(e.target===d)d.close()});</script>
-</body></html>
+<script src="/chat-widget.js" defer></script></body></html>
